@@ -69,6 +69,21 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] } 
   res.render('urls_show', templateVars);
+});
+
+// Redirects to edit page for a specific short URL determined by button press
+app.get("/urls/:id/edit", (req, res) => {
+  const shorterURL = req.params.id;
+  res.redirect(`/urls/${shorterURL}`);
+});
+
+//Allows editing of long URL, then updates and redirects back to the main page
+
+app.post("/urls/:id/", (req, res) => {
+  const shorterURL = req.params.id;
+  const updatedURL = req.body.updatedURL;
+  urlDatabase[shorterURL] = updatedURL;
+  res.redirect('/urls');
 })
 
 app.post("/urls/:id/delete", (req, res) => {
