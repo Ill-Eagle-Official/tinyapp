@@ -3,6 +3,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookie = require('cookie-parser');
 
 // HELPER FUNCTION FOR URL SHORTENING
 
@@ -27,6 +28,7 @@ const urlDatabase = {
 // MIDDLEWARE
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookie());
 
 // REQUESTS/POSTS, TO BE SPECIFIED
 
