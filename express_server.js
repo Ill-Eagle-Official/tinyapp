@@ -1,6 +1,10 @@
+// DEPENDENCIES
+
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+
+// HELPER FUNCTION FOR URL SHORTENING
 
 function generateRandomString() {
   let result = "";
@@ -20,7 +24,11 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// MIDDLEWARE
+
 app.use(express.urlencoded({ extended: true }));
+
+// REQUESTS/POSTS, TO BE SPECIFIED
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -61,6 +69,11 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] } 
   res.render('urls_show', templateVars);
+})
+
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
 })
 
 app.listen(PORT, () => {
