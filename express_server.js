@@ -5,6 +5,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookie = require('cookie-parser');
 
+app.set('view engine', 'ejs');
+
 // HELPER FUNCTION FOR URL SHORTENING
 
 function generateRandomString() {
@@ -18,27 +20,46 @@ function generateRandomString() {
   return result;
 }
 
-app.set('view engine', 'ejs');
+//
+// VARIABLES
+//
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+
+}
+
+//
 // MIDDLEWARE
+//
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookie());
 
+//
 // REQUESTS/POSTS, TO BE SPECIFIED
+//
 
 //New URL page
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies.username,
+    user: users[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
+});
+
+// Account Registration Page
+
+app.get("/register", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render("urls_registration", templateVars);
 });
 
 //Renders individual URL pages based on ID
@@ -47,7 +68,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies['username'] 
+    user: users[req.cookies.user_id]
   };
   res.render('urls_show', templateVars);
 });
@@ -55,7 +76,6 @@ app.get("/urls/:id", (req, res) => {
 // For creating new shortURLs with randomly generated strings
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);
   const shorterURL = generateRandomString();
   urlDatabase[shorterURL] = req.body.longURL;
   res.redirect(`/urls/${shorterURL}`);
@@ -74,6 +94,24 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
+
+// Adds a new user to the global USERS object through Registration
+
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const username = req.body.username;
+  const randomUserID = generateRandomString();
+  users[randomUserID] = {
+    id: randomUserID,
+    username: username,
+    email: email,
+    password: password,
+  };
+  res.cookie('user_id', randomUserID);
+  console.log(users);
+  res.redirect('/urls');
+})
 
 // Redirects to edit page for a specific short URL determined by button press
 
@@ -95,7 +133,7 @@ app.post("/urls/:id/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    username: req.cookies['username'],
+    user: users[req.cookies.user_id],
     urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
