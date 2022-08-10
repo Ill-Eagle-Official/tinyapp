@@ -7,31 +7,21 @@ const cookie = require('cookie-parser');
 
 app.set('view engine', 'ejs');
 
-// HELPER FUNCTION FOR URL SHORTENING
-
-function generateRandomString() {
-  let result = "";
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
-
 //
 // VARIABLES
 //
+
+const {
+    generateRandomString,
+    getUserByEmail,
+} = require('./helpers');
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {
-
-}
+const users = {};
 
 //
 // MIDDLEWARE
@@ -102,6 +92,15 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   const username = req.body.username;
   const randomUserID = generateRandomString();
+
+  if(email === "" || password === "" || username === "") {
+    return res.status(400).send("No fields can be blank, please fill 'em up!");
+  };
+
+  if(getUserByEmail(email, users)) {
+    return res.status(400).send("This email is already in the system! Try another one!");
+  };
+  
   users[randomUserID] = {
     id: randomUserID,
     username: username,
