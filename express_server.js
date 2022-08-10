@@ -35,7 +35,10 @@ app.use(cookie());
 //New URL page
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies.username,
+  };
+  res.render("urls_new", templateVars);
 });
 
 //Renders individual URL pages based on ID
