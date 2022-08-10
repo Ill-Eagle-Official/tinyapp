@@ -52,6 +52,15 @@ app.get("/register", (req, res) => {
   res.render("urls_registration", templateVars);
 });
 
+// Login Page
+
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
+  res.render('urls_login', templateVars);
+});
+
 //Renders individual URL pages based on ID
 
 app.get("/urls/:id", (req, res) => {
@@ -93,14 +102,14 @@ app.post("/register", (req, res) => {
   const username = req.body.username;
   const randomUserID = generateRandomString();
 
-  if(email === "" || password === "" || username === "") {
+  if(email === "" || password === "" || username === "") { // for blank fields
     return res.status(400).send("No fields can be blank, please fill 'em up!");
   };
 
-  if(getUserByEmail(email, users)) {
+  if(getUserByEmail(email, users)) { // for duplicate emails
     return res.status(400).send("This email is already in the system! Try another one!");
   };
-  
+
   users[randomUserID] = {
     id: randomUserID,
     username: username,

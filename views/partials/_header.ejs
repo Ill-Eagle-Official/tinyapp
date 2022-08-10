@@ -20,24 +20,13 @@
     </div>
     <% if (!user) { %>
     <div>
-      <form class="form-inline my-1" action="/login" method="POST">
-        <div class="form-group mb-2">
-          <label for="username"><b>Username:</b></label>
-          <input
-            class="form-control"
-            type="text"
-            name="username"
-            placeholder="Username"
-            style="width: 200px; margin: 1em"
-          />
-          <button type="submit" class="btn btn-primary">Login</button>
-          </div>
-      </form>
+       <a class="btn btn-primary" href="/login">Login</a>
+        <a class="btn btn-primary" href="/register">Register</a>
     </div>
     <% } else { %>
       <form class="form-inline my-1" action="/logout" method="POST">
-        Logged in as: <b><%= user.username %> </b>
-        <div class="form-group mb-2">
+        <div>
+          Logged in as: <b><%= user.username %> </b>
           <button type="submit" class="btn btn-primary">Logout</button>
         </div>
       </form>
