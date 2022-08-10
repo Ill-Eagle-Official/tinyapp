@@ -146,13 +146,26 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+// Logs the user in, compares password and email values, creates a cookie, then redirects to the main page
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
+  const user = getUserByEmail(req.body.email, users);
+  const registeredPassword = req.body.password;
+
+  if(user === undefined) { // for email not found
+    return res.status(403).send("403: Sorry! That email doesn't exist in our system!");
+  };
+
+  if(user.password !== registeredPassword) { // for an incorrect password
+    return res.status(403).send("403: Sorry! That password is invalid, try again!");
+  }; 
+
+  res.cookie('user_id', user.id);
   res.redirect('/urls');
 });
 
+// Logs the user out, deletes their cookie, then redirects to the main page
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
