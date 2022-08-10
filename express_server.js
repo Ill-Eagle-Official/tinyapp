@@ -32,23 +32,24 @@ app.use(cookie());
 
 // REQUESTS/POSTS, TO BE SPECIFIED
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+//New URL page
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+//Renders individual URL pages based on ID
+
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { 
+    id: req.params.id,
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies['username'] 
+  };
+  res.render('urls_show', templateVars);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
-});
-
+// For creating new shortURLs with randomly generated strings
 
 app.post("/urls", (req, res) => {
   console.log(req.body);
@@ -57,41 +58,49 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shorterURL}`);
 });
 
+// Redirects to the longURL associated with the shortURL(id)
+
 app.get("/u/:id", (req, res) => {
-  // const longURL = ...
   const longURL = urlDatabase[req.params.id];
-  // const longURL = data.longURL;
   res.redirect(longURL);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
+// Deletes a short URL and redirects to the main page
 
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] } 
-  res.render('urls_show', templateVars);
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
 });
 
 // Redirects to edit page for a specific short URL determined by button press
+
 app.get("/urls/:id/edit", (req, res) => {
   const shorterURL = req.params.id;
   res.redirect(`/urls/${shorterURL}`);
 });
 
-//Allows editing of long URL, then updates and redirects back to the main page
+// Allows editing of long URL, then updates and redirects back to the main page
 
 app.post("/urls/:id/", (req, res) => {
   const shorterURL = req.params.id;
   const updatedURL = req.body.updatedURL;
   urlDatabase[shorterURL] = updatedURL;
   res.redirect('/urls');
-})
+});
 
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+// Renders the base page with the list of urls
+
+app.get("/urls", (req, res) => {
+  const templateVars = { 
+    username: req.cookies['username'],
+    urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
   res.redirect('/urls');
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
