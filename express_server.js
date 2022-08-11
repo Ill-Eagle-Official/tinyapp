@@ -46,18 +46,30 @@ app.get("/urls/new", (req, res) => {
 // Account Registration Page
 
 app.get("/register", (req, res) => {
+  const cookie = req.cookies.user_id;
   const templateVars = {
     user: users[req.cookies.user_id]
   };
+
+  if (cookie) {
+    return res.redirect("/urls");
+  };
+
   res.render("urls_registration", templateVars);
 });
 
 // Login Page
 
 app.get('/login', (req, res) => {
+  const cookie = req.cookies.user_id;
   const templateVars = {
     user: users[req.cookies.user_id]
   };
+
+  if (cookie) {
+    return res.redirect('/urls'); 
+  };
+
   res.render('urls_login', templateVars);
 });
 
