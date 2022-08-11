@@ -37,9 +37,15 @@ app.use(cookie());
 //New URL page
 
 app.get("/urls/new", (req, res) => {
+  const cookie = req.cookies.user_id;
   const templateVars = {
     user: users[req.cookies.user_id]
   };
+
+  if (!cookie) {
+    return res.redirect('/login');
+  };
+
   res.render("urls_new", templateVars);
 });
 
@@ -88,6 +94,12 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const shorterURL = generateRandomString();
+  const cookie = req.cookies.user_id;
+
+  if (!cookie) {
+    return res.status(403).send('You need to be logged in to shorten URLs!');
+  };
+
   urlDatabase[shorterURL] = req.body.longURL;
   res.redirect(`/urls/${shorterURL}`);
 });
@@ -96,6 +108,11 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+
+  if (!longURL) {
+    return res.status(404).send('URL not found!');
+  }
+
   res.redirect(longURL);
 });
 
