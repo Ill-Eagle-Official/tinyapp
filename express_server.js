@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookie = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 
 app.set('view engine', 'ejs');
 
@@ -149,7 +150,7 @@ app.post("/urls/:id/delete", (req, res) => {
   if ((urlDatabase[shorterURL].userID !== cookie)) {
     return res.status(403).send('<h1><b>403: YOU SHALL NOT PASS!</b></h1>');
   };
-  
+
   delete urlDatabase[req.params.id].longURL;
   res.redirect('/urls');
 });
@@ -159,6 +160,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   const username = req.body.username;
   const randomUserID = generateRandomString();
 
@@ -174,7 +176,7 @@ app.post("/register", (req, res) => {
     id: randomUserID,
     username: username,
     email: email,
-    password: password,
+    password: hashedPassword,
   };
   res.cookie('user_id', randomUserID);
   console.log(users);
@@ -233,7 +235,7 @@ app.post('/login', (req, res) => {
     return res.status(403).send("403: Sorry! That email doesn't exist in our system!");
   };
 
-  if(user.password !== registeredPassword) { // for an incorrect password
+  if(!bcrypt.compareSync(registeredPassword, user.password)) { // for an incorrect password
     return res.status(403).send("403: Sorry! That password is invalid, try again!");
   }; 
 
@@ -244,7 +246,7 @@ app.post('/login', (req, res) => {
 // Logs the user out, deletes their cookie, then redirects to the main page
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 app.listen(PORT, () => {
