@@ -11,6 +11,8 @@ function generateRandomString() {
   return result;
 }
 
+// HELPER FUNCTION TO GET USER ID BY EMAIL
+
 const getUserByEmail = function(email, library) {
   for (users in library) {
     if (library[users].email === email) {
@@ -20,4 +22,17 @@ const getUserByEmail = function(email, library) {
   return null;
 };
 
-module.exports = { generateRandomString, getUserByEmail };
+// HELPER FUNCTION TO GET URLS BY USER ID
+
+const urlsForUser = function(id, library) {
+  let userURLs = {};
+
+  for (let urls in library) {
+    if (library[urls].userID === id) {
+      userURLs[urls] = library[urls];
+    }
+  }
+  return userURLs;
+};
+
+module.exports = { generateRandomString, getUserByEmail, urlsForUser }

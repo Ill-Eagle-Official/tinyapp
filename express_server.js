@@ -14,11 +14,18 @@ app.set('view engine', 'ejs');
 const {
     generateRandomString,
     getUserByEmail,
+    urlsForUser,
 } = require('./helpers');
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b2xVn2: {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "userRandomID"
+  },
+  ism5xK: {
+    longURL: "http://www.google.com",
+    userID: "userRandomID"
+  }
 };
 
 const users = {};
@@ -82,11 +89,20 @@ app.get('/login', (req, res) => {
 //Renders individual URL pages based on ID
 
 app.get("/urls/:id", (req, res) => {
+  const cookie = req.cookies.user_id;
   const templateVars = { 
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     user: users[req.cookies.user_id]
   };
+
+  if (!cookie) {
+    return res.status(403).send('<h1><b>403: You need to be logged in to see this!</b></h1>');
+  }
+
+  if ((urlDatabase[req.params.id].userID !== cookie)) {
+    return res.status(403).send('<h1><b>403: YOU SHALL NOT PASS!</b></h1>');
+  }
   res.render('urls_show', templateVars);
 });
 
@@ -100,14 +116,18 @@ app.post("/urls", (req, res) => {
     return res.status(403).send('You need to be logged in to shorten URLs!');
   };
 
-  urlDatabase[shorterURL] = req.body.longURL;
+  urlDatabase[shorterURL] = {
+    longURL: req.body.longURL,
+    userID: cookie,
+  };
+  console.log(urlDatabase);
   res.redirect(`/urls/${shorterURL}`);
 });
 
 // Redirects to the longURL associated with the shortURL(id)
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
 
   if (!longURL) {
     return res.status(404).send('URL not found!');
@@ -119,7 +139,7 @@ app.get("/u/:id", (req, res) => {
 // Deletes a short URL and redirects to the main page
 
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+  delete urlDatabase[req.params.id].longURL;
   res.redirect('/urls');
 });
 
@@ -162,16 +182,24 @@ app.get("/urls/:id/edit", (req, res) => {
 app.post("/urls/:id/", (req, res) => {
   const shorterURL = req.params.id;
   const updatedURL = req.body.updatedURL;
-  urlDatabase[shorterURL] = updatedURL;
+  urlDatabase[shorterURL].longURL = updatedURL;
   res.redirect('/urls');
 });
 
 // Renders the base page with the list of urls
 
 app.get("/urls", (req, res) => {
+  const cookie = req.cookies.user_id;
+  const user = users[req.cookies.user_id];
+  const userURLs = urlsForUser(cookie, urlDatabase);
   const templateVars = { 
-    user: users[req.cookies.user_id],
-    urls: urlDatabase };
+    user: user,
+    urls: userURLs };
+
+  if (!cookie) {
+    return res.status(400).send('You need to login in order to see your URLs!');
+  }
+
   res.render("urls_index", templateVars);
 });
 
