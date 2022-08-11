@@ -139,6 +139,17 @@ app.get("/u/:id", (req, res) => {
 // Deletes a short URL and redirects to the main page
 
 app.post("/urls/:id/delete", (req, res) => {
+  const cookie = req.cookies.user_id;
+  const shorterURL = req.params.id;
+
+  if (!cookie) {
+    return res.status(403).send('<h1><b>403: You need to be logged in to delete URLs!</b></h1>');
+  };
+
+  if ((urlDatabase[shorterURL].userID !== cookie)) {
+    return res.status(403).send('<h1><b>403: YOU SHALL NOT PASS!</b></h1>');
+  };
+  
   delete urlDatabase[req.params.id].longURL;
   res.redirect('/urls');
 });
@@ -180,8 +191,18 @@ app.get("/urls/:id/edit", (req, res) => {
 // Allows editing of long URL, then updates and redirects back to the main page
 
 app.post("/urls/:id/", (req, res) => {
+  const cookie = req.cookies.user_id;
   const shorterURL = req.params.id;
   const updatedURL = req.body.updatedURL;
+
+  if(!cookie) {
+    return res.status(403).send('<h1><b>403: You need to be logged in to edit URLs!</b></h1>');
+  };
+
+  if(urlDatabase[shorterURL].userID !== cookie) {
+    return res.status(403).send('<h1><b>403: Sorry, not your URL!</b></h1>');
+  };
+
   urlDatabase[shorterURL].longURL = updatedURL;
   res.redirect('/urls');
 });
