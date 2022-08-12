@@ -180,6 +180,10 @@ app.post("/register", (req, res) => {
     return res.status(400).send("No fields can be blank, please fill 'em up!");
   };
 
+  if(email === "howard@howardstern.com" && password === "fafafooey" && username === "bababooey") {
+    return res.redirect("https://www.youtube.com/watch?v=8Scm09bwT_s");
+  };
+
   if(getUserByEmail(email, users)) { // for duplicate emails
     return res.status(400).send("This email is already in the system! Try another one!");
   };
