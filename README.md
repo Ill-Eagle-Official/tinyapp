@@ -1,12 +1,8 @@
-## **Are you an avid Twitter user? Do you feel CHAINED DOWN by the character limit imposed upon you by THE MAN?**
+# **Welcome to TinyApp!**
 
-# **Well, look no further than TinyApp!**
-
-
+**Are you an avid Twitter user? Do you feel CHAINED DOWN by the character limit imposed upon you by THE MAN?**
 
 **TinyApp** is a full-stack web application that allows you to shorten those long URLs into more manageable direct links. You'll be sharing your favourite YouTube videos and controversial news articles in no time!
-
----
 
 ## Dependencies
 
@@ -19,8 +15,6 @@
 - bcryptjs
 
 - cookie-session
-
--------
 
 ## Getting Started
 
