@@ -43,8 +43,19 @@ app.use(cookieSession({
 );
 
 //
-// REQUESTS/POSTS, TO BE SPECIFIED
+// REQUESTS/POSTS
 //
+
+// Homepage redirect
+
+app.get("/", (req, res) => {
+  if(req.session['user_id']) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  };
+});
+
 
 //New URL page
 
